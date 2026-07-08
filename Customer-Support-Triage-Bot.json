@@ -1,0 +1,288 @@
+{
+  "name": "Customer Support Triage Bot",
+  "nodes": [
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=New customer support ticket received.\nCustomer Name: {{ $json.body.customerName }}\nCustomer Email: {{ $json.body.customerEmail }}\nFeedback: {{ $json.body.feedback }}",
+        "options": {
+          "systemMessage": "=You are a customer support triage assistant. When you receive a piece of customer feedback, analyse it and extract the following:\n \n1. Customer Name\n2. Customer Email\n3. Feedback Summary (one short line)\n4. Category (Bug / Feature Request / Complaint / Question / Praise)\n5. Urgency:\n   - High: blocks the customer's work, mentions revenue or business loss, or contains urgency words like ASAP, urgent, critical, broken, can't, down, blocking.\n   - Medium: functional issue or notable complaint without a blocker.\n   - Low: praise, minor suggestion, or general question.\n \nAfter every triage, use the Google Sheets tool to append a row with the extracted fields, today's date, and Status = \"New\".\n \nThen use the Gmail tool to send a warm, personalised acknowledgement email to the customer (Customer email). Reference their specific issue by name and confirm we've received it.\n \nIf Urgency = High, ALSO use the Gmail tool to send an escalation email to your-email@gmail.com with the full feedback details, urgency level, and customer email so the team can act fast.\n\nReply with a short one-liner acknowlegdement that we can send to the customer."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        288,
+        0
+      ],
+      "id": "d1a5c388-6245-4a06-8748-d41bc3cc3c90",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4.1-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4.1-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        64,
+        224
+      ],
+      "id": "0c39103c-f3b5-4640-8bb3-c5650172144a",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "YOUR-CREDENTIAL-ID",
+          "name": "Your openAiApi Credentials"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1uTipMiItBLb9wGVoZ6CZNdSUEGK0grHb4cMxQQTsnDA",
+          "mode": "list"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1uTipMiItBLb9wGVoZ6CZNdSUEGK0grHb4cMxQQTsnDA/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Date": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Date', ``, 'string') }}",
+            "Customer Name": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Customer_Name', ``, 'string') }}",
+            "Customer Email": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Customer_Email', ``, 'string') }}",
+            "Feedback Summary": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Feedback_Summary', ``, 'string') }}",
+            "Category": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Category', ``, 'string') }}",
+            "Urgency": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Urgency', ``, 'string') }}",
+            "Status": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Status', ``, 'string') }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Date",
+              "displayName": "Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Customer Name",
+              "displayName": "Customer Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Customer Email",
+              "displayName": "Customer Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Feedback Summary",
+              "displayName": "Feedback Summary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Category",
+              "displayName": "Category",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Urgency",
+              "displayName": "Urgency",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        304,
+        224
+      ],
+      "id": "000305cd-ec93-4cf0-a7a7-c973ee67e623",
+      "name": "Append row in sheet in Google Sheets",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "YOUR-CREDENTIAL-ID",
+          "name": "Your googleSheetsOAuth2Api Credentials"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('To', ``, 'string') }}",
+        "subject": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Subject', ``, 'string') }}",
+        "emailType": "text",
+        "message": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Message', ``, 'string') }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.2,
+      "position": [
+        576,
+        224
+      ],
+      "id": "fb7b2537-ab0e-44ce-8bc6-8d6a529adc74",
+      "name": "Send a message in Gmail",
+      "webhookId": "943d2395-7935-4411-9a9f-f9ba2988da8e",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "YOUR-CREDENTIAL-ID",
+          "name": "Your gmailOAuth2 Credentials"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "your-webhook-path",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        16,
+        0
+      ],
+      "id": "392da662-8ea1-4aba-993a-6a49be690764",
+      "name": "Webhook",
+      "webhookId": "a698c86b-c7ce-40c7-a254-2a931488432a"
+    },
+    {
+      "parameters": {
+        "respondWith": "allIncomingItems",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        640,
+        0
+      ],
+      "id": "3d85dd92-f58c-4159-9cca-eaa156ec2691",
+      "name": "Respond to Webhook"
+    }
+  ],
+  "connections": {
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet in Google Sheets": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message in Gmail": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "SAMPLE-VERSION-ID",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "1b99d3e994c0fca3e400f220921b19e3df506b34a42448c69c0a9e33d3bffc97"
+  },
+  "nodeGroups": [],
+  "id": "SAMPLE-WORKFLOW-ID",
+  "tags": []
+}
